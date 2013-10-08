@@ -1,0 +1,55 @@
+package test;
+
+message Date {
+	required uint32 year = 1;
+	required uint32 month = 2;
+	required uint32 day = 3;
+};
+
+message Person {
+	// Field rules
+	required string name = 1;
+	optional uint32 age = 2;
+	repeated string emails = 3;
+
+	// Custom default value
+	optional bool is_married = 4 [default = true];
+
+	// Enumerations
+	enum Gender {
+	     HERMAPHRODITE = 0;
+	     FEMALE = 1;
+	     MALE = 2;
+	}
+	optional Gender gender = 5;
+	enum Nationality {
+	     option allow_alias = true;
+	     DOMESTIC = 0;
+	     FOREIGN = 1;
+	     ALIEN = 1;
+	}
+	optional Nationality nationality = 6;
+
+	// Child Messages
+	required Date birthday = 7;
+	repeated Person children = 8;
+
+	// The more interesting data types
+	optional bool flag = 9;
+	optional string text = 10;
+	optional bytes data = 11;
+
+	// Rest of the boring data types
+	optional double d = 12;
+	optional float f = 13;
+	optional int32 i32 = 14;
+	optional int64 i64 = 15;
+	optional uint32 u32 = 16;
+	optional uint64 u64 = 17;
+	optional sint32 s32 = 18;
+	optional sint64 s64 = 19;
+	optional fixed32 f32 = 20;
+	optional fixed64 f64 = 21;
+	optional sfixed32 sf32 = 22;
+	optional sfixed64 sf64 = 23;
+};
