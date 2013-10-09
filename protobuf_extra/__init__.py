@@ -24,7 +24,7 @@ def DictionaryToString(d, **kwargs):
     element is what gets passed to the 'isinstance' function as the
     seconds argument.  The second element of each tuple is a callable
     that takes two unicode strings, the value object, and keyword
-    arguments.
+    arguments.  See examples below for a clearer picture.
 
     :para d: A Python dict instance.
     :para kwargs: Optional arguments: 'converters'.
@@ -96,6 +96,9 @@ def DictionaryToString(d, **kwargs):
     regardless of the numeric enums:
 
     >>> asciiRepresentation = DictionaryToString({"gender": Person.MALE})
+    >>> print asciiRepresentation
+    gender: 2
+    <BLANKLINE>
     >>> message = MessageFromString(Person, asciiRepresentation)
     >>> binaryRepresentation = MessageToBinary(message, partial=True)
     >>> message = MessageFromBinary(Person, binaryRepresentation)
@@ -106,14 +109,15 @@ def DictionaryToString(d, **kwargs):
     Support for additional Python datatypes:
 
     >>> from datetime import date
-    >>> def dateToDict(prefix, name, value, **kwargs):
-    ...     return u"%s%s {\n%s%s}\n" % (prefix, name,
-    ...                                  DictionaryToString({"year": value.year,
-    ...                                                      "month": value.month,
-    ...                                                      "day": value.day}, **kwargs),
-    ...                                  prefix)
-    >>> print DictionaryToString({'date': date(2013, 10, 5)}, converters=[(date, dateToDict)])
-    date {
+    >>> from protobuf_extra import converter
+    >>> @converter
+    ... def date_to_dict(d):
+    ...     '''A function that takes a datetime.date instance, and returns
+    ...        a test.Person_pb2.Date compatible Python dictionary.'''
+    ...     return {"year": d.year, "month": d.month, "day": d.day}
+    ...
+    >>> print DictionaryToString({'birthday': date(2013, 10, 5)}, converters=[(date, date_to_dict)])
+    birthday {
         day: 5
         month: 10
         year: 2013
@@ -327,7 +331,8 @@ def MessageToDictionary(message, **kwargs):
     If message is a Message subclass, the dictionary contains all the
     fields with their default values.
 
-    :para message: 
+    :para message: Message subclass or instance.
+    :para kwargs: Optional arguments: 'converters' 
 
     For the dictionary representation, it does not matter whether the
     message is complete or not (required fields can be missing).
@@ -466,6 +471,22 @@ def MessageToDictionary(message, **kwargs):
     >>> MessageToDictionary(person)
     {'sf64': -64}
 
+    >>> from datetime import date
+    >>> from test.Person_pb2 import Person, Date
+    >>> from protobuf_extra import converter
+    >>> @converter
+    ... def dict_to_date(d):
+    ...     '''A function that takes a test.Person_pb2.Date compatible
+    ...        Python dictionary instance, and returns a datetime.date instance.'''
+    ...     return date(d["year"], d["month"], d["day"])
+    ... 
+    >>> person = Person()
+    >>> person.birthday.year = 1970
+    >>> person.birthday.month = 1
+    >>> person.birthday.day = 1
+    >>> MessageToDictionary(person, converters=[(Date, dict_to_date)])
+    {'birthday': datetime.date(1970, 1, 1)}
+
     The message class can be used to build a template.  (The
     sorted(person_dict.items() is there to make the output
     predictable, otherwise the keys would be in random order.)
@@ -490,6 +511,28 @@ def MessageToDictionary(message, **kwargs):
     This functionality is only meant for generating a template from a
     Protobuf Message type.
 
+    This also supports custom Python types:
+
+    >>> from datetime import date
+    >>> from test.Person_pb2 import Person, Date
+    >>> from protobuf_extra import converter
+    >>> @converter
+    ... def dict_to_date(d):
+    ...     '''A function that takes a test.Person_pb2.Date compatible
+    ...        Python dictionary instance, and returns a datetime.date instance.'''
+    ...     try:
+    ...         return date(d["year"], d["month"], d["day"])
+    ...     except ValueError:
+    ...         # Our protobuf Date is more relaxed that Python datetime.date.
+    ...         # Instead of doing any recovery (like a real app would), let's
+    ...         # just waste space with this overly long comment and return
+    ...         # a dummy date.
+    ...         return date(1,1,1)
+    ... 
+    >>> person_dict = MessageToDictionary(Person, converters=[(Date, dict_to_date)])
+    >>> person_dict["birthday"]
+    datetime.date(1, 1, 1)
+
     """
     from google.protobuf.message import Message
     from google.protobuf.descriptor import Descriptor, FieldDescriptor
@@ -504,7 +547,7 @@ def MessageToDictionary(message, **kwargs):
                     messageType = converter[0]
                     if isinstance(value, messageType):
                         handler = converter[1]
-                        value = handler(value, **kwargs)
+                        value = handler(MessageToDictionary(value), **kwargs)
                         break
                 else:
                     value = MessageToDictionary(value, **kwargs)
@@ -522,12 +565,14 @@ def MessageToDictionary(message, **kwargs):
             kwargs[recursive_guard] = kwargs.get(recursive_guard, [])
             if field.type == FieldDescriptor.TYPE_MESSAGE and field.message_type not in kwargs[recursive_guard]:
                 kwargs[recursive_guard].append(field.message_type)
-                recursive_guard_added = True
                 for converter in kwargs.get('converters', []):
-                    messageType = converters[0]
-                    if issubclass(field.message_type, messageType):
-                        handler = converter[0]
-                        value = handler(field.message_type, **kwargs)
+                    messageType = converter[0]
+                    # There doesn't seem to be a way to get from field
+                    # descriptor to the generated Message subclass.
+                    # So, let's compare the descriptors then.
+                    if field.message_type == messageType.DESCRIPTOR:
+                        handler = converter[1]
+                        value = handler(MessageToDictionary(messageType), **kwargs)
                         break
                 else:
                     value = MessageToDictionary(field.message_type, **kwargs)
@@ -598,6 +643,21 @@ def MessageToBinary(message, partial=False):
         else:
             binaryRepresentation = message.SerializeToString()
     return binaryRepresentation
+
+def converter(implementation):
+    """Decorator for converters."""
+    def converter(*args, **kwargs):
+        """Wrapper for converter %s"""  % implementation
+        if len(args) == 1:
+            # args[0] is dictionary and implementation is supposed to
+            # be f(dict) -> object.
+            return implementation(args[0])
+        else:
+            # args[0] is prefix, args[1] is name, args[2] is Python
+            # type, and implementation is supposed to be f(object) ->
+            # dict.
+            return u"%s%s {\n%s%s}\n" % (args[0], args[1], DictionaryToString(implementation(args[2]), **kwargs), args[0])
+    return converter
 
 def main(**kwargs):
     """
@@ -683,7 +743,7 @@ def main(**kwargs):
         message = MessageFromBinary(MessageClass, stdin.read())
 
     if args.output_format == 'ascii':
-        print MessageToString(message, **kwargs)
+        print MessageToString(message)
     elif args.output_format == 'dict':
         print MessageToDictionary(message, **kwargs)
     elif args.output_format == 'bin':
