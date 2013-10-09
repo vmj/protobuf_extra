@@ -19,7 +19,7 @@ setup(
             '\n\n',
             open('CHANGES.rst').read()
             ]),
-    install_requires=['protobuf',],
+    requires=['protobuf',],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
