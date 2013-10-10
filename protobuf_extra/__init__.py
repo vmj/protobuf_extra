@@ -17,17 +17,10 @@ def DictionaryToString(d, **kwargs):
     Supported value types are str, unicode, bool, int, float, long,
     dict, list, and tuple.
 
-    Support for additional value types can be added by passing
-    'converters' keyword argument.  The arguments is a list of
-    two element tuples.  The first element of each tuple is
-    the Python type or a tuple of Python types.  I.e. The first
-    element is what gets passed to the 'isinstance' function as the
-    seconds argument.  The second element of each tuple is a callable
-    that takes two unicode strings, the value object, and keyword
-    arguments.  See examples below for a clearer picture.
+    See examples below, and the documentation of @converter decorator,
+    for how to add support for additional value types.
 
     :para d: A Python dict instance.
-    :para kwargs: Optional arguments: 'converters'.
     :return: Google Protocol Buffer ASCII representation compatible string.
 
     Numeric data types (except complex):
@@ -109,20 +102,25 @@ def DictionaryToString(d, **kwargs):
     Support for additional Python datatypes:
 
     >>> from datetime import date
-    >>> from protobuf_extra import converter
-    >>> @converter
+    >>> @converter(date)
     ... def date_to_dict(d):
     ...     '''A function that takes a datetime.date instance, and returns
     ...        a test.Person_pb2.Date compatible Python dictionary.'''
     ...     return {"year": d.year, "month": d.month, "day": d.day}
     ...
-    >>> print DictionaryToString({'birthday': date(2013, 10, 5)}, converters=[(date, date_to_dict)])
+    >>> print DictionaryToString({'birthday': date(2013, 10, 5)})
     birthday {
         day: 5
         month: 10
         year: 2013
     }
     <BLANKLINE>
+
+    Ignore the following example.  These examples are actually test
+    code, and this clears the state so that the tests do not interfere
+    each other.
+
+    >>> del fromPythonConverters[0]
     """
     import codecs
     def byte_to_oct_error(e):
@@ -154,7 +152,7 @@ def DictionaryToString(d, **kwargs):
             values = [value]
 
         for value in values:
-            for converter in converters + kwargs.get('converters', []):
+            for converter in converters + fromPythonConverters:
                 pythonType = converter[0]
                 if isinstance(value, pythonType):
                     handler = converter[1]
@@ -332,7 +330,6 @@ def MessageToDictionary(message, **kwargs):
     fields with their default values.
 
     :para message: Message subclass or instance.
-    :para kwargs: Optional arguments: 'converters' 
 
     For the dictionary representation, it does not matter whether the
     message is complete or not (required fields can be missing).
@@ -471,10 +468,11 @@ def MessageToDictionary(message, **kwargs):
     >>> MessageToDictionary(person)
     {'sf64': -64}
 
+    Support for custom types:
+
     >>> from datetime import date
     >>> from test.Person_pb2 import Person, Date
-    >>> from protobuf_extra import converter
-    >>> @converter
+    >>> @converter(Date)
     ... def dict_to_date(d):
     ...     '''A function that takes a test.Person_pb2.Date compatible
     ...        Python dictionary instance, and returns a datetime.date instance.'''
@@ -484,8 +482,14 @@ def MessageToDictionary(message, **kwargs):
     >>> person.birthday.year = 1970
     >>> person.birthday.month = 1
     >>> person.birthday.day = 1
-    >>> MessageToDictionary(person, converters=[(Date, dict_to_date)])
+    >>> MessageToDictionary(person)
     {'birthday': datetime.date(1970, 1, 1)}
+
+    Ignore the following example.  These examples are actually test
+    code, and this clears the state so that the tests do not interfere
+    each other.
+
+    >>> del toPythonConverters[0]
 
     The message class can be used to build a template.  (The
     sorted(person_dict.items() is there to make the output
@@ -511,12 +515,13 @@ def MessageToDictionary(message, **kwargs):
     This functionality is only meant for generating a template from a
     Protobuf Message type.
 
-    This also supports custom Python types:
+    This also supports custom Python types.  Note that converters need
+    to deal with any impedance mismatch between different types:
 
     >>> from datetime import date
     >>> from test.Person_pb2 import Person, Date
-    >>> from protobuf_extra import converter
-    >>> @converter
+    >>> from exceptions import ValueError
+    >>> @converter(Date)
     ... def dict_to_date(d):
     ...     '''A function that takes a test.Person_pb2.Date compatible
     ...        Python dictionary instance, and returns a datetime.date instance.'''
@@ -524,15 +529,24 @@ def MessageToDictionary(message, **kwargs):
     ...         return date(d["year"], d["month"], d["day"])
     ...     except ValueError:
     ...         # Our protobuf Date is more relaxed that Python datetime.date.
+    ...         # In this example, the date constructor fails because default
+    ...         # Date is all zeros, and that is not alright with Python date.
     ...         # Instead of doing any recovery (like a real app would), let's
     ...         # just waste space with this overly long comment and return
     ...         # a dummy date.
     ...         return date(1,1,1)
     ... 
-    >>> person_dict = MessageToDictionary(Person, converters=[(Date, dict_to_date)])
+    >>> person_dict = MessageToDictionary(Person)
     >>> person_dict["birthday"]
     datetime.date(1, 1, 1)
 
+    Note how default (0,0,0) protobuf Date was translated to (1,1,1) Python date.
+
+    Ignore the following example.  These examples are actually test
+    code, and this clears the state so that the tests do not interfere
+    each other.
+
+    >>> del toPythonConverters[0]
     """
     from google.protobuf.message import Message
     from google.protobuf.descriptor import Descriptor, FieldDescriptor
@@ -543,7 +557,7 @@ def MessageToDictionary(message, **kwargs):
             if field.label == FieldDescriptor.LABEL_REPEATED and field.type == FieldDescriptor.TYPE_MESSAGE:
                 value = [MessageToDictionary(v, **kwargs) for v in value]
             elif isinstance(value, Message):
-                for converter in kwargs.get('converters', []):
+                for converter in toPythonConverters:
                     messageType = converter[0]
                     if isinstance(value, messageType):
                         handler = converter[1]
@@ -565,7 +579,7 @@ def MessageToDictionary(message, **kwargs):
             kwargs[recursive_guard] = kwargs.get(recursive_guard, [])
             if field.type == FieldDescriptor.TYPE_MESSAGE and field.message_type not in kwargs[recursive_guard]:
                 kwargs[recursive_guard].append(field.message_type)
-                for converter in kwargs.get('converters', []):
+                for converter in toPythonConverters:
                     messageType = converter[0]
                     # There doesn't seem to be a way to get from field
                     # descriptor to the generated Message subclass.
@@ -644,20 +658,35 @@ def MessageToBinary(message, partial=False):
             binaryRepresentation = message.SerializeToString()
     return binaryRepresentation
 
-def converter(implementation):
+toPythonConverters = []
+fromPythonConverters = []
+
+def converter(t):
     """Decorator for converters."""
-    def converter(*args, **kwargs):
-        """Wrapper for converter %s"""  % implementation
-        if len(args) == 1:
-            # args[0] is dictionary and implementation is supposed to
-            # be f(dict) -> object.
-            return implementation(args[0])
-        else:
-            # args[0] is prefix, args[1] is name, args[2] is Python
-            # type, and implementation is supposed to be f(object) ->
-            # dict.
-            return u"%s%s {\n%s%s}\n" % (args[0], args[1], DictionaryToString(implementation(args[2]), **kwargs), args[0])
-    return converter
+    from google.protobuf.message import Message
+    if issubclass(t, Message):
+        converters = toPythonConverters
+    else:
+        converters = fromPythonConverters
+    def converterDecorator(implementation):
+        """Function that does the actual decoration and registration."""
+        def decoratedConverter(*args, **kwargs):
+            """Function that calls the converter with right arguments."""
+            if len(args) == 1:
+                # args[0] is dicionary, and implementation is supposed
+                # to be f(dict) -> object.
+                return implementation(args[0])
+            else:
+                # args[2] is object, and implementation is supposed to
+                # be f(object) -> dict.
+                d = implementation(args[2])
+                # args[0] is prefix, args[1] is name
+                return u"%s%s {\n%s%s}\n" % (args[0], args[1], 
+                                             DictionaryToString(d, **kwargs), args[0])
+        converterDescriptor = (t, decoratedConverter)
+        converters.append(converterDescriptor)
+        return decoratedConverter
+    return converterDecorator
 
 def main(**kwargs):
     """
