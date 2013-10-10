@@ -147,7 +147,7 @@ def DictionaryToString(d, **kwargs):
     for name in sorted(d.iterkeys()):
         value = d[name]
         if isinstance(value, (list, tuple)):
-            values = value            
+            values = value
         else:
             values = [value]
 
@@ -194,7 +194,7 @@ def MessageFromDictionary(messageClass, dictionary, **kwargs):
 
 def MessageFromBinary(messageClass, binaryRepresentation):
     """Builds a Google Protocol Buffer Message from binary representation.
-    
+
     This is exactly same as
     messageClass().ParseFromString(binaryRepresentation), and provided
     here only for completeness.
@@ -477,7 +477,7 @@ def MessageToDictionary(message, **kwargs):
     ...     '''A function that takes a test.Person_pb2.Date compatible
     ...        Python dictionary instance, and returns a datetime.date instance.'''
     ...     return date(d["year"], d["month"], d["day"])
-    ... 
+    ...
     >>> person = Person()
     >>> person.birthday.year = 1970
     >>> person.birthday.month = 1
@@ -494,7 +494,7 @@ def MessageToDictionary(message, **kwargs):
     The message class can be used to build a template.  (The
     sorted(person_dict.items() is there to make the output
     predictable, otherwise the keys would be in random order.)
-    
+
     >>> person_dict = MessageToDictionary(Person)
     >>> sorted(person_dict.items())
     [('age', 0), ('birthday', {'month': 0, 'day': 0, 'year': 0}), ('children', [{'text': u'', 'u64': 0, 'i64': 0, 'sf32': 0, 'children': [], 'u32': 0, 'is_married': True, 'f64': 0, 's32': 0, 'sf64': 0, 'flag': False, 'birthday': {'month': 0, 'day': 0, 'year': 0}, 'nationality': 0, 'data': '', 'emails': [], 'd': 0, 'name': u'', 'f': 0, 'i32': 0, 'age': 0, 'f32': 0, 'gender': 0, 's64': 0}]), ('d', 0), ('data', ''), ('emails', []), ('f', 0), ('f32', 0), ('f64', 0), ('flag', False), ('gender', 0), ('i32', 0), ('i64', 0), ('is_married', True), ('name', u''), ('nationality', 0), ('s32', 0), ('s64', 0), ('sf32', 0), ('sf64', 0), ('text', u''), ('u32', 0), ('u64', 0)]
@@ -535,7 +535,7 @@ def MessageToDictionary(message, **kwargs):
     ...         # just waste space with this overly long comment and return
     ...         # a dummy date.
     ...         return date(1,1,1)
-    ... 
+    ...
     >>> person_dict = MessageToDictionary(Person)
     >>> person_dict["birthday"]
     datetime.date(1, 1, 1)
@@ -608,13 +608,15 @@ def MessageToBinary(message, partial=False):
 
     Building the binary representation of a Message, you can
     instantiate a Message and then call this function.
-    
+
     >>> from test.Person_pb2 import Person
     >>> person = Person()
-    >>> binaryJohnDoe = MessageToBinary(person)
-    Traceback (most recent call last):
-      ...
-    EncodeError: Message test.Person is missing required fields: name,birthday
+    >>> try:
+    ...     binaryJohnDoe = MessageToBinary(person)
+    ... except Exception as e:
+    ...     print "Missing fields:%s" % e.message.split(':')[1]
+    ...
+    Missing fields: name,birthday
 
     Oops, there seems to be required fields.  You can fix that either
     by allowing partial serialization.
@@ -631,10 +633,12 @@ def MessageToBinary(message, partial=False):
 
     As a short hand, you can also serialize the Message class itself.
 
-    >>> binaryDefaults = MessageToBinary(Person)
-    Traceback (most recent call last):
-      ...
-    EncodeError: Message test.Person is missing required fields: name,birthday
+    >>> try:
+    ...     binaryDefaults = MessageToBinary(Person)
+    ... except Exception as e:
+    ...     print "Missing fields:%s" % e.message.split(':')[1]
+    ...
+    Missing fields: name,birthday
     >>> binaryRepresentation = MessageToBinary(Person, partial=True)
 
     """
