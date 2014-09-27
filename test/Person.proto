@@ -38,18 +38,19 @@ message Person {
 	optional bool flag = 9;
 	optional string text = 10;
 	optional bytes data = 11;
+	repeated uint64 keys = 12;
 
 	// Rest of the boring data types
-	optional double d = 12;
-	optional float f = 13;
-	optional int32 i32 = 14;
-	optional int64 i64 = 15;
-	optional uint32 u32 = 16;
-	optional uint64 u64 = 17;
-	optional sint32 s32 = 18;
-	optional sint64 s64 = 19;
-	optional fixed32 f32 = 20;
-	optional fixed64 f64 = 21;
-	optional sfixed32 sf32 = 22;
-	optional sfixed64 sf64 = 23;
+	optional double d = 13;
+	optional float f = 14;
+	optional int32 i32 = 15;
+	optional int64 i64 = 16;
+	optional uint32 u32 = 17;
+	optional uint64 u64 = 18;
+	optional sint32 s32 = 19;
+	optional sint64 s64 = 20;
+	optional fixed32 f32 = 21;
+	optional fixed64 f64 = 22;
+	optional sfixed32 sf32 = 23;
+	optional sfixed64 sf64 = 24;
 };

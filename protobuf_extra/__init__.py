@@ -340,9 +340,9 @@ def MessageToDictionary(message, **kwargs):
     {}
 
     >>> person = Person()
-    >>> person.name = "John Doe"
+    >>> person.name = u'John Doe'
     >>> MessageToDictionary(person)
-    {'name': 'John Doe'}
+    {'name': u'John Doe'}
 
     >>> person = Person()
     >>> person.age = 18
@@ -367,18 +367,18 @@ def MessageToDictionary(message, **kwargs):
     Repeated fields are Python lists.
 
     >>> person = Person()
-    >>> person.emails.append('john@doe.com')
-    >>> person.emails.append('john@doe.net')
+    >>> person.emails.append(u'john@doe.com')
+    >>> person.emails.append(u'john@doe.net')
     >>> MessageToDictionary(person)
-    {'emails': ['john@doe.com', 'john@doe.net']}
+    {'emails': [u'john@doe.com', u'john@doe.net']}
 
     >>> person = Person()
     >>> child = person.children.add()
-    >>> child.name = "Tiivi"
+    >>> child.name = u'Tiivi'
     >>> child = person.children.add()
-    >>> child.name = "Taavi"
+    >>> child.name = u'Taavi'
     >>> MessageToDictionary(person)
-    {'children': [{'name': 'Tiivi'}, {'name': 'Taavi'}]}
+    {'children': [{'name': u'Tiivi'}, {'name': u'Taavi'}]}
 
     Protobuf string types are always Python unicode:
 
@@ -393,6 +393,23 @@ def MessageToDictionary(message, **kwargs):
     >>> person.text = u"aaa"
     >>> d = MessageToDictionary(person)
     >>> assert isinstance(d['text'], unicode)
+
+    Note that if you try to put Python byte string into a protobuf string, it is converted to a unicode string:
+
+    >>> person = Person()
+    >>> person.text = "aaa"
+    >>> person.emails.append("aaa")
+    >>> d = MessageToDictionary(person)
+    >>> assert isinstance(d['text'], unicode)
+    >>> assert isinstance(d['emails'][0], unicode)
+
+    But you have to deal with encoding issues:
+
+    >>> person = Person()
+    >>> person.text = "äää" # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+      ...
+    ValueError: ... has type str, but isn't in 7-bit ASCII encoding.
 
     Protobuf bytes type is Python byte string (str).
 
@@ -424,9 +441,9 @@ def MessageToDictionary(message, **kwargs):
     {'i32': 32}
 
     >>> person = Person()
-    >>> person.i64 = 64
+    >>> person.i64 = 64L
     >>> MessageToDictionary(person)
-    {'i64': 64}
+    {'i64': 64L}
 
     >>> person = Person()
     >>> person.u32 = 32
@@ -434,9 +451,9 @@ def MessageToDictionary(message, **kwargs):
     {'u32': 32}
 
     >>> person = Person()
-    >>> person.u64 = 64
+    >>> person.u64 = 64L
     >>> MessageToDictionary(person)
-    {'u64': 64}
+    {'u64': 64L}
 
     >>> person = Person()
     >>> person.s32 = -32
@@ -444,9 +461,9 @@ def MessageToDictionary(message, **kwargs):
     {'s32': -32}
 
     >>> person = Person()
-    >>> person.s64 = -64
+    >>> person.s64 = -64L
     >>> MessageToDictionary(person)
-    {'s64': -64}
+    {'s64': -64L}
 
     >>> person = Person()
     >>> person.f32 = 32
@@ -454,9 +471,9 @@ def MessageToDictionary(message, **kwargs):
     {'f32': 32}
 
     >>> person = Person()
-    >>> person.f64 = 64
+    >>> person.f64 = 64L
     >>> MessageToDictionary(person)
-    {'f64': 64}
+    {'f64': 64L}
 
     >>> person = Person()
     >>> person.sf32 = -32
@@ -464,9 +481,20 @@ def MessageToDictionary(message, **kwargs):
     {'sf32': -32}
 
     >>> person = Person()
-    >>> person.sf64 = -64
+    >>> person.sf64 = -64L
     >>> MessageToDictionary(person)
-    {'sf64': -64}
+    {'sf64': -64L}
+
+    Similar to unicode support, long integers are converted for you:
+
+    >>> person = Person()
+    >>> person.i64 = 64
+    >>> person.keys.append(64)
+    >>> d = MessageToDictionary(person)
+    >>> d['i64']
+    64L
+    >>> d['keys']
+    [64L]
 
     Support for custom types:
 
@@ -497,7 +525,7 @@ def MessageToDictionary(message, **kwargs):
 
     >>> person_dict = MessageToDictionary(Person)
     >>> sorted(person_dict.items())
-    [('age', 0), ('birthday', {'month': 0, 'day': 0, 'year': 0}), ('children', [{'text': u'', 'u64': 0, 'i64': 0, 'sf32': 0, 'children': [], 'u32': 0, 'is_married': True, 'f64': 0, 's32': 0, 'sf64': 0, 'flag': False, 'birthday': {'month': 0, 'day': 0, 'year': 0}, 'nationality': 0, 'data': '', 'emails': [], 'd': 0, 'name': u'', 'f': 0, 'i32': 0, 'age': 0, 'f32': 0, 'gender': 0, 's64': 0}]), ('d', 0), ('data', ''), ('emails', []), ('f', 0), ('f32', 0), ('f64', 0), ('flag', False), ('gender', 0), ('i32', 0), ('i64', 0), ('is_married', True), ('name', u''), ('nationality', 0), ('s32', 0), ('s64', 0), ('sf32', 0), ('sf64', 0), ('text', u''), ('u32', 0), ('u64', 0)]
+    [('age', 0), ('birthday', {'month': 0, 'day': 0, 'year': 0}), ('children', [{'text': u'', 'u64': 0, 'i64': 0, 'sf32': 0, 'children': [], 'u32': 0, 'is_married': True, 'f64': 0, 'keys': [], 's32': 0, 'sf64': 0, 'flag': False, 'birthday': {'month': 0, 'day': 0, 'year': 0}, 'nationality': 0, 'data': '', 'emails': [], 'd': 0, 'name': u'', 'f': 0, 'i32': 0, 'age': 0, 'f32': 0, 'gender': 0, 's64': 0}]), ('d', 0), ('data', ''), ('emails', []), ('f', 0), ('f32', 0), ('f64', 0), ('flag', False), ('gender', 0), ('i32', 0), ('i64', 0), ('is_married', True), ('keys', []), ('name', u''), ('nationality', 0), ('s32', 0), ('s64', 0), ('sf32', 0), ('sf64', 0), ('text', u''), ('u32', 0), ('u64', 0)]
 
     Some notes about the above dictionary:
 
@@ -565,6 +593,20 @@ def MessageToDictionary(message, **kwargs):
                         break
                 else:
                     value = MessageToDictionary(value, **kwargs)
+            # TODO: When support for protobuf 2.5 is dropped, following "normalization" can be removed since 2.6.0 does
+            #       it for us.
+            #elif field.label != FieldDescriptor.LABEL_REPEATED:
+            elif field.type == FieldDescriptor.TYPE_STRING:
+                if field.label == FieldDescriptor.LABEL_REPEATED:
+                    value = [unicode(v) for v in value]
+                else:
+                    value = unicode(value)
+            elif field.type in (FieldDescriptor.TYPE_INT64, FieldDescriptor.TYPE_SINT64, FieldDescriptor.TYPE_UINT64,
+                                FieldDescriptor.TYPE_FIXED64, FieldDescriptor.TYPE_SFIXED64):
+                if field.label == FieldDescriptor.LABEL_REPEATED:
+                    value = [long(v) for v in value]
+                else:
+                    value = long(value)
             dictionary[field.name] = value
         # TODO: Override dictionary values from properties
         return dictionary
