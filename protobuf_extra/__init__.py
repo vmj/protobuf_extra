@@ -653,12 +653,10 @@ def MessageToBinary(message, partial=False):
 
     >>> from test.Person_pb2 import Person
     >>> person = Person()
-    >>> try:
-    ...     binaryJohnDoe = MessageToBinary(person)
-    ... except Exception as e:
-    ...     print "Missing fields:%s" % e.message.split(':')[1]
-    ...
-    Missing fields: name,birthday
+    >>> binaryJohnDoe = MessageToBinary(person) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+      ...
+    EncodeError: Message test.Person is missing required fields: name,birthday
 
     Oops, there seems to be required fields.  You can fix that either
     by allowing partial serialization.
@@ -675,12 +673,10 @@ def MessageToBinary(message, partial=False):
 
     As a short hand, you can also serialize the Message class itself.
 
-    >>> try:
-    ...     binaryDefaults = MessageToBinary(Person)
-    ... except Exception as e:
-    ...     print "Missing fields:%s" % e.message.split(':')[1]
-    ...
-    Missing fields: name,birthday
+    >>> binaryDefaults = MessageToBinary(Person) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+      ...
+    EncodeError: Message test.Person is missing required fields: name,birthday
     >>> binaryRepresentation = MessageToBinary(Person, partial=True)
 
     """
