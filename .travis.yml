@@ -4,6 +4,7 @@ python:
 env:
  - PROTOBUF_VERSION=2.5.0
  - PROTOBUF_VERSION=2.6.0
+ - PROTOBUF_VERSION=2.6.1
 install:
  - pip install protobuf==$PROTOBUF_VERSION
  - python setup.py install
