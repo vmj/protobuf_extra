@@ -46,7 +46,7 @@ Requirements
 ============
 
 In addition to Python (2.7.*), `protobuf
-<https://pypi.python.org/pypi/protobuf/>`_ (either 2.5.0 or 2.6.0) is required.
+<https://pypi.python.org/pypi/protobuf/>`_ (2.5.0 - 2.6.1) is required.
 
 
 Installation
