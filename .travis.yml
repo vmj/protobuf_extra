@@ -1,4 +1,6 @@
 language: python
+# remove dist when trusty becomes default for real
+dist: trusty
 python:
  - 2.7
  - 3.3
