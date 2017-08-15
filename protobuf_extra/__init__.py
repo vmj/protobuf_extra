@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Extra tools for Protobuf and Python"""
 from __future__ import print_function
-"""
 
-"""
 __version__ = '0.5'
+
 try:
     str = unicode
 except NameError:

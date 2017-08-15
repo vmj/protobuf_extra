@@ -81,7 +81,7 @@ archive and use ``python setup.py install``.
 The source code is available at `Python Package Index (PyPI)
 <http://pypi.python.org/pypi/protobuf-extra>`_ or, if you want the
 unreleased version, from `Github
-<https://github.com/vmj/protobuf-extra>`_ git repository.
+<https://github.com/vmj/protobuf_extra>`_ git repository.
 
 
 Authors
