@@ -338,7 +338,7 @@ def main(**kwargs):
 
                                        The default output format is 'ascii'.
 
-                                       For more details, see the module documentation ('pydoc ./pb').
+                                       For more details, see the module documentation ('pydoc protobuf_extra').
                                   '''),
                          formatter_class=RawDescriptionHelpFormatter)
     cli.add_argument('-t', '--type', metavar='TYPE', required=True,
