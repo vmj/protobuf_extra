@@ -32,11 +32,14 @@ def DictionaryToString(d, **kwargs):
     :para d: A Python dict instance.
     :return: Google Protocol Buffer ASCII representation compatible string.
     """
-    import codecs
+    import codecs, sys
 
     def byte_to_oct_error(e):
         if isinstance(e, UnicodeDecodeError):
-            return u"\\%o" % ord(e.object[e.start]), e.end
+            if sys.version_info[0]<3:
+                return u"\\%o" % ord(e.object[e.start]), e.end
+            else:
+                return u"\\%o" % e.object[e.start], e.end
         return codecs.strict_error(e)
     codecs.register_error("byte_to_oct", byte_to_oct_error)
 
