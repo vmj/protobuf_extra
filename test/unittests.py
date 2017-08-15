@@ -135,6 +135,7 @@ class MessageToString(unittest.TestCase):
         don't appear at all since there is no ASCII representation for an
         empty list.
         """
+        self.maxDiff = None
         self.check(Person, d('''\
         age: 0
         birthday {
@@ -274,10 +275,15 @@ class MessageToDictionary(unittest.TestCase):
         person.flag = True
         self.check(person, {'flag': True})
 
+    def test_float_numeric_types(self):
+        person = Person()
+        person.f = 3.2123
+        actual = protobuf_extra.MessageToDictionary(person)
+        self.assertAlmostEqual(3.2123, actual['f'])
+
     def test_numeric_types(self):
         person = Person()
         person.d = 3.2123
-        person.f = 3.2123
         person.i32 = 32
         person.i64 = 64
         person.u32 = 32
@@ -290,7 +296,6 @@ class MessageToDictionary(unittest.TestCase):
         person.sf64 = -64
         self.check(person, {
             'd': 3.2123,
-            'f': 3.2123,
             'i32': 32,
             'i64': 64,
             'u32': 32,
@@ -343,6 +348,7 @@ class MessageToDictionary(unittest.TestCase):
         This functionality is only meant for generating a template from a
         Protobuf Message type.
         """
+        self.maxDiff = None
         self.check(Person, {
             'age': 0,
             'birthday': {
