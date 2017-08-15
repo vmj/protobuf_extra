@@ -45,7 +45,7 @@ See 'pydoc protobuf_extra' for a lot more documentation.
 Requirements
 ============
 
-In addition to Python (2.7.*), `protobuf
+In addition to Python (2.7 or 3.3 - 3.6), `protobuf
 <https://pypi.python.org/pypi/protobuf/>`_ (3.0.0 - 3.3.0) is required.
 
 
