@@ -8,4 +8,4 @@ env:
 install:
  - pip install protobuf==$PROTOBUF_VERSION
  - python setup.py install
-script: python -mdoctest protobuf_extra/__init__.py
+script: python -m unittest discover -v -p "unittests.py"
