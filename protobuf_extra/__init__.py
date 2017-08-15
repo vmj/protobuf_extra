@@ -5,6 +5,10 @@ from __future__ import print_function
 
 """
 __version__='0.1'
+try:
+    str = unicode
+except NameError:
+    pass  # Forward compatibility with py3k (unicode is not defined)
 
 
 def DictionaryToString(d, **kwargs):
@@ -16,7 +20,7 @@ def DictionaryToString(d, **kwargs):
 
     Keys must be strings and are used verbatim.
 
-    Supported value types are str, unicode, bool, int, float, long,
+    Supported value types are bytes, str (unicode), bool, int, float, long,
     dict, list, and tuple.
 
     See unit tests, and the documentation of @converter decorator,
@@ -35,8 +39,8 @@ def DictionaryToString(d, **kwargs):
 
     converters = [
         (dict,               lambda prefix, name, value, **kwargs: u'%s%s {\n%s%s}\n' % (prefix, name, DictionaryToString(value, **kwargs), prefix)),
-        (str,                lambda prefix, name, value, **kwargs: u'%s%s: "%s"\n' % (prefix, name, value.decode("utf8", "byte_to_oct"))),
-        (unicode,            lambda prefix, name, value, **kwargs: u'%s%s: "%s"\n' % (prefix, name, value)),
+        (bytes,              lambda prefix, name, value, **kwargs: u'%s%s: "%s"\n' % (prefix, name, value.decode("utf8", "byte_to_oct"))),
+        (str,                lambda prefix, name, value, **kwargs: u'%s%s: "%s"\n' % (prefix, name, value)),
         (bool,               lambda prefix, name, value, **kwargs: u'%s%s: %s\n' % (prefix, name, 'true' if value else 'false')),
         ((int, float, long), lambda prefix, name, value, **kwargs: u'%s%s: %s\n' % (prefix, name, value))
     ]
@@ -174,9 +178,9 @@ def MessageToDictionary(message, **kwargs):
             #elif field.label != FieldDescriptor.LABEL_REPEATED:
             elif field.type == FieldDescriptor.TYPE_STRING:
                 if field.label == FieldDescriptor.LABEL_REPEATED:
-                    value = [unicode(v) for v in value]
+                    value = [str(v) for v in value]
                 else:
-                    value = unicode(value)
+                    value = str(value)
             elif field.type in (FieldDescriptor.TYPE_INT64, FieldDescriptor.TYPE_SINT64, FieldDescriptor.TYPE_UINT64,
                                 FieldDescriptor.TYPE_FIXED64, FieldDescriptor.TYPE_SFIXED64):
                 if field.label == FieldDescriptor.LABEL_REPEATED:

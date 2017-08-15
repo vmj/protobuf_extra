@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
+try:
+    str = unicode
+except NameError:
+    pass  # Forward compatibility with py3k (unicode is not defined)
 
 from textwrap import dedent as d
 import protobuf_extra
@@ -22,17 +26,17 @@ class DictionaryToString(unittest.TestCase):
 
     def test_string_types(self):
         """
-        For protobuf string type, you can use both Python str and unicode.
+        For protobuf string type, you can use both Python str (unicode).
         """
         self.check({"str": "foo"}, u'str: "foo"\n')
         self.check({"unicode": u"bar"}, u'unicode: "bar"\n')
 
     def test_bytes_types(self):
         """
-        For protobuf bytes, only Python str works (escape the non-ASCII
+        For protobuf bytes, Python bytes works (escape the non-ASCII
         bytes).
         """
-        self.check({"bytes": "A\x95B"}, u'bytes: "A\\225B"\n')
+        self.check({"bytes": b"A\x95B"}, u'bytes: "A\\225B"\n')
 
     def test_boolean_types(self):
         self.check({"bool": True}, u'bool: true\n')
@@ -244,27 +248,26 @@ class MessageToDictionary(unittest.TestCase):
 
     def test_string_types(self):
         """
-        Protobuf string types are always Python unicode,
+        Protobuf string types are always Python str (unicode),
         even when the it could be str.
-        :return:
         """
         person = Person()
         person.text = u"äää"
         dictionary_representation = protobuf_extra.MessageToDictionary(person)
-        self.assertTrue(isinstance(dictionary_representation['text'], unicode))
+        self.assertTrue(isinstance(dictionary_representation['text'], str))
         person = Person()
         person.text = "aaa"
         dictionary_representation = protobuf_extra.MessageToDictionary(person)
-        self.assertTrue(isinstance(dictionary_representation['text'], unicode))
+        self.assertTrue(isinstance(dictionary_representation['text'], str))
 
     def test_bytes_types(self):
         """
-        Protobuf bytes type is Python byte string (str).
+        Protobuf bytes type is Python bytes.
         """
         person = Person()
-        person.data = "aaa"
+        person.data = b"aaa"
         dictionary_representation = protobuf_extra.MessageToDictionary(person)
-        self.assertTrue(isinstance(dictionary_representation['data'], str))
+        self.assertTrue(isinstance(dictionary_representation['data'], bytes))
 
     def test_boolean_types(self):
         person = Person()
