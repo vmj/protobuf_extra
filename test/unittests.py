@@ -279,7 +279,7 @@ class MessageToDictionary(unittest.TestCase):
         person = Person()
         person.f = 3.2123
         actual = protobuf_extra.MessageToDictionary(person)
-        self.assertAlmostEqual(3.2123, actual['f'])
+        self.assertAlmostEqual(3.2123, actual['f'], delta=0.000001)
 
     def test_numeric_types(self):
         person = Person()
