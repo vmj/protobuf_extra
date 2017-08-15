@@ -411,8 +411,6 @@ class MessageToDictionary(unittest.TestCase):
         """
         from datetime import date
 
-        from exceptions import ValueError
-
         @protobuf_extra.converter(Date)
         def dict_to_date(dict_instance):
             """
