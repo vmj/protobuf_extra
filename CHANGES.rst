@@ -2,6 +2,12 @@ Release history
 ===============
 
 
+Version 0.5.1 (2017-08-15)
+--------------------------
+
+This release fixes a few places in docs.
+
+
 Version 0.5 (2017-08-15)
 ------------------------
 
