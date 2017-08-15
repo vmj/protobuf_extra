@@ -2,6 +2,14 @@ Release history
 ===============
 
 
+Version 0.5 (2017-08-15)
+------------------------
+
+Ported to Python 3, still compatible with Python 2.7.  Python 3 support requires protobuf 3.0.0 or newer.
+
+This version still only supports 'proto2' syntax.
+
+
 Version 0.1 (2013-10-08)
 ------------------------
 
