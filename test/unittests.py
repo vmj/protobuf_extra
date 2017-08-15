@@ -3,7 +3,7 @@ import unittest
 
 from textwrap import dedent as d
 import protobuf_extra
-from Person_pb2 import Person, Date
+from test.Person_pb2 import Person, Date
 
 
 class DictionaryToString(unittest.TestCase):
