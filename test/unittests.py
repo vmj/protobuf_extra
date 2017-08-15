@@ -145,9 +145,9 @@ class MessageToString(unittest.TestCase):
                 month: 0
                 year: 0
             }
-            d: 0
+            d: 0.0
             data: ""
-            f: 0
+            f: 0.0
             f32: 0
             f64: 0
             flag: false
@@ -165,9 +165,9 @@ class MessageToString(unittest.TestCase):
             u32: 0
             u64: 0
         }
-        d: 0
+        d: 0.0
         data: ""
-        f: 0
+        f: 0.0
         f32: 0
         f64: 0
         flag: false
