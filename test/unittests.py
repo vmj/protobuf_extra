@@ -18,7 +18,7 @@ class DictionaryToString(unittest.TestCase):
         """
         self.check({"int": 8}, u'int: 8\n')
         self.check({"float": 3.2}, u'float: 3.2\n')
-        self.check({"long": 1L}, u'long: 1\n')
+        self.check({"long": 1}, u'long: 1\n')
 
     def test_string_types(self):
         """
@@ -276,28 +276,28 @@ class MessageToDictionary(unittest.TestCase):
         person.d = 3.2123
         person.f = 3.2123
         person.i32 = 32
-        person.i64 = 64L
+        person.i64 = 64
         person.u32 = 32
-        person.u64 = 64L
+        person.u64 = 64
         person.s32 = -32
-        person.s64 = -64L
+        person.s64 = -64
         person.f32 = 32
-        person.f64 = 64L
+        person.f64 = 64
         person.sf32 = -32
-        person.sf64 = -64L
+        person.sf64 = -64
         self.check(person, {
             'd': 3.2123,
             'f': 3.2123,
             'i32': 32,
-            'i64': 64L,
+            'i64': 64,
             'u32': 32,
-            'u64': 64L,
+            'u64': 64,
             's32': -32,
-            's64': -64L,
+            's64': -64,
             'f32': 32,
-            'f64': 64L,
+            'f64': 64,
             'sf32': -32,
-            'sf64': -64L
+            'sf64': -64
         })
 
     def test_custom_types(self):
