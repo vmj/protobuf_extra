@@ -348,7 +348,8 @@ class MessageToDictionary(unittest.TestCase):
             'birthday': {
                 'month': 0,
                 'day': 0,
-                'year': 0},
+                'year': 0
+            },
             'children': [
                 {
                     'text': u'',
@@ -369,11 +370,11 @@ class MessageToDictionary(unittest.TestCase):
                         'year': 0
                     },
                     'nationality': 0,
-                    'data': '',
+                    'data': b'',
                     'emails': [],
-                    'd': 0,
+                    'd': 0.0,
                     'name': u'',
-                    'f': 0,
+                    'f': 0.0,
                     'i32': 0,
                     'age': 0,
                     'f32': 0,
@@ -381,10 +382,10 @@ class MessageToDictionary(unittest.TestCase):
                     's64': 0
                 }
             ],
-            'd': 0,
-            'data': '',
+            'd': 0.0,
+            'data': b'',
             'emails': [],
-            'f': 0,
+            'f': 0.0,
             'f32': 0,
             'f64': 0,
             'flag': False,
