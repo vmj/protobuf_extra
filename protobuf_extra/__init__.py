@@ -221,9 +221,12 @@ def MessageToDictionary(message, **kwargs):
                 kwargs[recursive_guard].remove(field.message_type)
                 if field.label == FieldDescriptor.LABEL_REPEATED:
                     value = [value]
-            else:
-                value = field.default_value
-            dictionary[field.name] = value
+                dictionary[field.name] = value
+            elif field.type == FieldDescriptor.TYPE_MESSAGE:
+                if field.label == FieldDescriptor.LABEL_REPEATED:
+                    dictionary[field.name] = []
+            else:  # simple values
+                dictionary[field.name] = field.default_value
         # TODO: Override dictionary values from properties
         return dictionary
 
