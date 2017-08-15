@@ -375,6 +375,7 @@ def main(**kwargs):
     elif args.input_format == 'ascii':
         message = MessageFromString(MessageClass, stdin.read())
     elif args.input_format == 'bin':
+        stdin = fdopen(0, "rb")
         message = MessageFromBinary(MessageClass, stdin.read())
 
     if args.output_format == 'ascii':
