@@ -226,7 +226,10 @@ def MessageToDictionary(message, **kwargs):
                 if field.label == FieldDescriptor.LABEL_REPEATED:
                     dictionary[field.name] = []
             else:  # simple values
-                dictionary[field.name] = field.default_value
+                if field.label == FieldDescriptor.LABEL_REPEATED:
+                    dictionary[field.name] = []
+                else:
+                    dictionary[field.name] = field.default_value
         # TODO: Override dictionary values from properties
         return dictionary
 
