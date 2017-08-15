@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 """
 
 """
@@ -361,9 +362,9 @@ def main(**kwargs):
         message = MessageFromBinary(MessageClass, stdin.read())
 
     if args.output_format == 'ascii':
-        print MessageToString(message)
+        print(MessageToString(message))
     elif args.output_format == 'dict':
-        print MessageToDictionary(message)
+        print(MessageToDictionary(message))
     elif args.output_format == 'bin':
         # Reopen stdout (fd=1) in binary mode. Also, use write()
         # instead of print.  These together should bypass the Python's
