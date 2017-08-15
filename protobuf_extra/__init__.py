@@ -55,7 +55,7 @@ def DictionaryToString(d, **kwargs):
     prefix = u" " * kwargs['indent'] * kwargs['depth']
 
     kwargs['depth'] = kwargs['depth'] + 1
-    for name in sorted(d.iterkeys()):
+    for name in sorted(d.keys()):
         value = d[name]
         if isinstance(value, (list, tuple)):
             values = value
