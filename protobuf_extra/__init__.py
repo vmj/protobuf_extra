@@ -9,7 +9,10 @@ try:
     str = unicode
 except NameError:
     pass  # Forward compatibility with py3k (unicode is not defined)
-
+try:
+    long
+except NameError:
+    long = int  # Forward compatibility with py3k (long is not defined)
 
 def DictionaryToString(d, **kwargs):
     r"""Encodes a Python dictionary to a Google Protocol Buffer ASCII
