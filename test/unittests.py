@@ -14,7 +14,7 @@ class DictionaryToString(unittest.TestCase):
 
     def check(self, dictionary_representation, expected):
         actual = protobuf_extra.DictionaryToString(dictionary_representation)
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_numeric_types(self):
         """
@@ -94,7 +94,7 @@ class MessageToString(unittest.TestCase):
 
     def check(self, m, expected):
         actual = protobuf_extra.MessageToString(m)
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_empty(self):
         person = Person()
@@ -196,7 +196,7 @@ class MessageToDictionary(unittest.TestCase):
 
     def check(self, m, expected):
         actual = protobuf_extra.MessageToDictionary(m)
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_empty(self):
         """
@@ -440,7 +440,7 @@ class MessageToDictionary(unittest.TestCase):
                 return date(1, 1, 1)
 
         person_dict = protobuf_extra.MessageToDictionary(Person)
-        self.assertEqual(person_dict["birthday"], date(1, 1, 1))
+        self.assertEqual(date(1, 1, 1), person_dict["birthday"])
 
         # Just clear the state
         del protobuf_extra.toPythonConverters[0]
