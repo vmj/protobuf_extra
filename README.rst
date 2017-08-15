@@ -5,8 +5,9 @@ protobuf-extra provides a program and a library to convert between
 ASCII, Python dictionary, and binary Protocol Buffer message
 representations.
 
-| Download: http://pypi.python.org/pypi/protobuf-extra
-| Source code: http://github.com/vmj/protobuf-extra
+| Download: https://pypi.python.org/pypi/protobuf-extra
+| Source code: https://github.com/vmj/protobuf_extra
+| Build status: https://travis-ci.org/vmj/protobuf_extra
 
 .. contents::
 
