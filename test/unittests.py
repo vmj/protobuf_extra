@@ -446,9 +446,11 @@ class MessageToBinary(unittest.TestCase):
         from google.protobuf.message import EncodeError
 
         person = Person()
+        # python 2.7 does not have assertRaisesRegex
+        # while assertRaisesRegexp is deprecated in python 3.6
         self.assertRaisesRegexp(EncodeError,
-                                'Message test.Person is missing required fields: name,birthday',
-                                protobuf_extra.MessageToBinary, person)
+                               'Message test.Person is missing required fields: name,birthday',
+                               protobuf_extra.MessageToBinary, person)
 
     def test_partial(self):
         person = Person()
@@ -465,8 +467,10 @@ class MessageToBinary(unittest.TestCase):
     def test_class(self):
         from google.protobuf.message import EncodeError
 
+        # python 2.7 does not have assertRaisesRegex
+        # while assertRaisesRegexp is deprecated in python 3.6
         self.assertRaisesRegexp(EncodeError,
-                                'Message test.Person is missing required fields: name,birthday',
-                                protobuf_extra.MessageToBinary, Person)
+                               'Message test.Person is missing required fields: name,birthday',
+                               protobuf_extra.MessageToBinary, Person)
 
         binaryRepresentation = protobuf_extra.MessageToBinary(Person, partial=True)
