@@ -2,6 +2,12 @@ Release history
 ===============
 
 
+Version 0.5.2 (2017-11-10)
+--------------------------
+
+A source distribution packaging bug was fixed.
+
+
 Version 0.5.1 (2017-08-15)
 --------------------------
 

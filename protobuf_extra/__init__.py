@@ -3,7 +3,7 @@
 """Extra tools for Protobuf and Python"""
 from __future__ import print_function
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 try:
     str = unicode
